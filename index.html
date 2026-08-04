@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#10261f" />
+    <title>Japanese Number Hearing</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#practice" aria-label="Japanese Number Hearing home">日本語 · Numbers</a>
+        <button class="settings-link" type="button" data-route="settings">Settings</button>
+      </header>
+
+      <section id="practice-view" class="view" aria-labelledby="practice-title">
+        <p class="eyebrow">Listening practice</p>
+        <h1 id="practice-title">What number did you hear?</h1>
+        <p id="range-label" class="range-label"></p>
+
+        <button id="replay-button" class="sound-button" type="button" aria-label="Replay number">
+          <span aria-hidden="true">◖</span> Play number
+        </button>
+
+        <form id="answer-form" novalidate>
+          <label for="answer-input">Type the number</label>
+          <div class="answer-row">
+            <input id="answer-input" inputmode="numeric" autocomplete="off" pattern="[0-9]*" placeholder="e.g. 42" />
+            <button class="submit-button" type="submit">Check</button>
+          </div>
+        </form>
+        <div id="feedback" class="feedback" aria-live="polite"></div>
+        <p id="next-hint" class="next-hint" hidden>Press Enter or Space for the next number.</p>
+      </section>
+
+      <section id="settings-view" class="view" aria-labelledby="settings-title" hidden>
+        <p class="eyebrow">Practice setup</p>
+        <h1 id="settings-title">Settings</h1>
+        <form id="settings-form" class="settings-form">
+          <fieldset>
+            <legend>Number range</legend>
+            <div id="range-options" class="choice-list"></div>
+          </fieldset>
+          <fieldset>
+            <legend>Answer format</legend>
+            <label class="choice-card selected">
+              <input type="radio" name="answer-format" value="digits" checked />
+              <span>Ordinary digits <small>Type answers like 42</small></span>
+            </label>
+            <label class="choice-card unavailable" title="This option is not available yet">
+              <input type="radio" name="answer-format" value="japanese" disabled />
+              <span>Japanese numerals / words <small>(unavailable)</small></span>
+            </label>
+          </fieldset>
+          <fieldset>
+            <legend>Audio</legend>
+            <button id="autoplay-toggle" class="choice-card toggle-button" type="button" aria-pressed="true">
+              <span class="toggle-indicator" aria-hidden="true"></span>
+              <span>Auto-play audio on start <small>Play each new number automatically</small></span>
+            </button>
+          </fieldset>
+          <button class="save-button" type="submit">Save and practice</button>
+        </form>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
