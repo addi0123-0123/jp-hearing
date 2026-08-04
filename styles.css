@@ -31,6 +31,7 @@ h1 { margin: 0; max-width: 32rem; font-size: clamp(2.2rem, 9vw, 4.3rem); line-he
 .range-label { margin: 1rem 0 2.5rem; color: var(--muted); }
 .sound-button { display: flex; align-items: center; gap: .65rem; width: 100%; justify-content: center; border: 0; border-radius: 1rem; padding: 1.35rem; background: var(--ink); color: white; font-weight: 800; font-size: 1.12rem; box-shadow: 0 .6rem 1.8rem #17382e2c; }
 .sound-button span { display: inline-block; font-size: 1.8rem; transform: rotate(180deg); }
+.audio-note { margin: .7rem 0 0; color: var(--muted); font-size: .85rem; text-align: center; }
 #answer-form { margin-top: 2.75rem; }
 label, legend { display: block; font-weight: 750; }
 .answer-row { display: flex; gap: .7rem; margin-top: .65rem; }

@@ -5,14 +5,14 @@ class BrowserTtsAudio {
     this.playbackId = 0;
   }
 
-  play(text) {
+  play(text, { userInitiated = false } = {}) {
     if (!this.synth) return Promise.reject(new Error("Text-to-speech is not supported by this browser."));
     const playbackId = ++this.playbackId;
     // Chrome can clip the beginning of a new utterance if it is spoken in the
     // same event turn as cancel(). Allow the speech engine to fully reset first.
     this.synth.cancel();
     return new Promise((resolve, reject) => {
-      window.setTimeout(() => {
+      const startSpeech = () => {
         if (playbackId !== this.playbackId) return resolve();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = "ja-JP";
@@ -30,7 +30,11 @@ class BrowserTtsAudio {
         };
         this.synth.resume();
         this.synth.speak(utterance);
-      }, 150);
+      };
+      // Android browsers can block speech started after a timer, even when the
+      // timer follows a tap. Start immediately for a user-triggered action.
+      if (userInitiated) startSpeech();
+      else window.setTimeout(startSpeech, 150);
     });
   }
 }
@@ -53,6 +57,7 @@ const rangeLabel = document.querySelector("#range-label");
 const answerForm = document.querySelector("#answer-form");
 const answerInput = document.querySelector("#answer-input");
 const replayButton = document.querySelector("#replay-button");
+const submitButton = document.querySelector(".submit-button");
 const feedback = document.querySelector("#feedback");
 const nextHint = document.querySelector("#next-hint");
 const rangeOptions = document.querySelector("#range-options");
@@ -83,13 +88,13 @@ function setFeedback(kind = "", message = "", mark = "") {
   feedback.innerHTML = mark ? `<span class="mark" aria-hidden="true">${mark}</span><span>${message}</span>` : message;
 }
 
-function playCurrent() {
+function playCurrent({ userInitiated = false } = {}) {
   if (state.answer === null) return;
   replayButton.disabled = true;
-  audio.play(numberToJapanese(state.answer)).catch((error) => setFeedback("wrong", error.message)).finally(() => { replayButton.disabled = false; });
+  audio.play(numberToJapanese(state.answer), { userInitiated }).catch((error) => setFeedback("wrong", error.message)).finally(() => { replayButton.disabled = false; });
 }
 
-function nextQuestion() {
+function nextQuestion({ userInitiated = false } = {}) {
   state.answer = randomNumber(currentRange());
   rangeLabel.textContent = `Current range: ${currentRange().label}`;
   state.attempts = 0;
@@ -97,19 +102,23 @@ function nextQuestion() {
   answerInput.value = "";
   answerInput.classList.remove("is-correct");
   answerInput.disabled = false;
-  document.querySelector(".submit-button").disabled = false;
+  submitButton.disabled = false;
+  submitButton.textContent = "Check";
   setFeedback();
   nextHint.hidden = true;
   answerInput.focus();
-  if (settings.autoplay) playCurrent();
+  if (settings.autoplay) playCurrent({ userInitiated });
 }
 
 function submitAnswer() {
-  if (state.awaitingNext) return;
+  if (state.awaitingNext) {
+    nextQuestion({ userInitiated: true });
+    return;
+  }
   const raw = answerInput.value.trim();
   if (!/^\d+$/.test(raw)) { setFeedback("wrong", "Please type ordinary digits only.", "!"); return; }
   if (Number(raw) === state.answer) {
-    nextQuestion();
+    nextQuestion({ userInitiated: true });
     return;
   }
   state.attempts += 1;
@@ -118,7 +127,8 @@ function submitAnswer() {
   else {
     state.awaitingNext = true;
     answerInput.disabled = true;
-    document.querySelector(".submit-button").disabled = true;
+    submitButton.textContent = "Continue";
+    submitButton.disabled = false;
     setFeedback("wrong", "Incorrect.", "✕");
     nextHint.hidden = false;
   }
@@ -133,12 +143,12 @@ function showView(view) {
   const showSettings = view === "settings";
   practiceView.hidden = showSettings;
   settingsView.hidden = !showSettings;
-  if (!showSettings) nextQuestion();
+  if (!showSettings) nextQuestion({ userInitiated: true });
 }
 
 document.querySelector("[data-route='settings']").addEventListener("click", () => showView("settings"));
 document.querySelector(".brand").addEventListener("click", (event) => { event.preventDefault(); showView("practice"); });
-replayButton.addEventListener("click", playCurrent);
+replayButton.addEventListener("click", () => playCurrent({ userInitiated: true }));
 autoplayToggle.addEventListener("click", () => {
   settings.autoplay = !settings.autoplay;
   autoplayToggle.setAttribute("aria-pressed", String(settings.autoplay));
@@ -153,7 +163,7 @@ answerInput.addEventListener("input", () => {
 document.addEventListener("keydown", (event) => {
   if (!state.awaitingNext || settingsView.hidden === false || (event.key !== "Enter" && event.key !== " ")) return;
   event.preventDefault();
-  nextQuestion();
+  nextQuestion({ userInitiated: true });
 });
 document.querySelector("#settings-form").addEventListener("submit", (event) => {
   event.preventDefault();
