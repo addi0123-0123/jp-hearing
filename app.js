@@ -127,6 +127,8 @@ function submitAnswer() {
   if (state.attempts === 1) setFeedback("wrong", "Not quite — one retry remaining.", "!");
   else {
     state.awaitingNext = true;
+    answerInput.value = String(state.answer);
+    answerInput.classList.remove("is-correct");
     answerInput.disabled = true;
     submitButton.textContent = "Continue";
     submitButton.disabled = false;
