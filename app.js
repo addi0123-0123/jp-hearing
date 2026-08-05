@@ -195,7 +195,7 @@ answerInput.addEventListener("input", () => {
 });
 document.addEventListener("keydown", (event) => {
   if (settingsView.hidden === false) {
-    if (event.key === "Enter" && !event.ctrlKey && !event.metaKey && !event.altKey && !event.isComposing) {
+    if ((event.key === "Enter" || event.code === "Space") && !event.ctrlKey && !event.metaKey && !event.altKey && !event.isComposing) {
       event.preventDefault();
       settingsForm.requestSubmit();
     }
