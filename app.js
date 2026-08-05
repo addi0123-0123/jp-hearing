@@ -106,6 +106,7 @@ function nextQuestion({ userInitiated = false } = {}) {
   submitButton.textContent = "Check";
   setFeedback();
   nextHint.hidden = true;
+  nextHint.textContent = "Press Enter or Space for the next number.";
   answerInput.focus();
   if (settings.autoplay) playCurrent({ userInitiated });
 }
@@ -130,6 +131,7 @@ function submitAnswer() {
     submitButton.textContent = "Continue";
     submitButton.disabled = false;
     setFeedback("wrong", "Incorrect.", "✕");
+    nextHint.textContent = `The answer was ${state.answer}. Press Enter or Space for the next number.`;
     nextHint.hidden = false;
   }
 }
