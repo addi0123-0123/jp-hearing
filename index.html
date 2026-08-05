@@ -22,12 +22,13 @@
         <button id="replay-button" class="sound-button" type="button" aria-label="Replay number">
           <span aria-hidden="true">◖</span> Play number
         </button>
+        <p class="audio-shortcut">Or press Space to play audio.</p>
         <p class="audio-note">If audio does not start on your phone, tap Play number.</p>
 
         <form id="answer-form" novalidate>
           <label for="answer-input">Type the number</label>
           <div class="answer-row">
-            <input id="answer-input" inputmode="numeric" autocomplete="off" pattern="[0-9]*" placeholder="e.g. 42" />
+            <input id="answer-input" inputmode="numeric" autocomplete="off" pattern="[0-9,]*" placeholder="e.g. 42 or 1,000" />
             <button class="submit-button" type="submit">Check</button>
           </div>
         </form>
@@ -39,11 +40,16 @@
         <p class="eyebrow">Practice setup</p>
         <h1 id="settings-title">Settings</h1>
         <form id="settings-form" class="settings-form">
-          <fieldset>
+          <div class="settings-tabs" role="tablist" aria-label="Settings categories">
+            <button id="range-tab" class="settings-tab" type="button" role="tab" aria-selected="true" aria-controls="range-panel">Range</button>
+            <button id="answers-tab" class="settings-tab" type="button" role="tab" aria-selected="false" aria-controls="answers-panel" tabindex="-1">Answers</button>
+            <button id="audio-tab" class="settings-tab" type="button" role="tab" aria-selected="false" aria-controls="audio-panel" tabindex="-1">Audio</button>
+          </div>
+          <fieldset id="range-panel" class="settings-panel" role="tabpanel" aria-labelledby="range-tab">
             <legend>Number range</legend>
             <div id="range-options" class="choice-list"></div>
           </fieldset>
-          <fieldset>
+          <fieldset id="answers-panel" class="settings-panel" role="tabpanel" aria-labelledby="answers-tab" hidden>
             <legend>Answer format</legend>
             <label class="choice-card selected">
               <input type="radio" name="answer-format" value="digits" checked />
@@ -54,7 +60,7 @@
               <span>Japanese numerals / words <small>(unavailable)</small></span>
             </label>
           </fieldset>
-          <fieldset>
+          <fieldset id="audio-panel" class="settings-panel" role="tabpanel" aria-labelledby="audio-tab" hidden>
             <legend>Audio</legend>
             <button id="autoplay-toggle" class="choice-card toggle-button" type="button" aria-pressed="true">
               <span class="toggle-indicator" aria-hidden="true"></span>

@@ -45,6 +45,9 @@ const RANGES = [
   { id: "100-999", label: "100–999", min: 100, max: 999 },
   { id: "1000-9999", label: "1,000–9,999", min: 1000, max: 9999 },
   { id: "10000-99999", label: "10,000–99,999", min: 10000, max: 99999 },
+  { id: "100000-999999", label: "100,000–999,999", min: 100000, max: 999999 },
+  { id: "10000000-99999900", label: "10,000,000–99,999,900", format: "(XX,XXX,X00 to YY,YYY,Y00)", min: 10000000, max: 99999900, step: 100 },
+  { id: "100000000-999900000", label: "100,000,000–999,900,000", format: "(XXX,X00,000 to YYY,Y00,000)", min: 100000000, max: 999900000, step: 100000 },
 ];
 
 const settings = { autoplay: true, ...JSON.parse(localStorage.getItem("jp-number-settings") || '{"range":"0-10"}') };
@@ -62,9 +65,13 @@ const feedback = document.querySelector("#feedback");
 const nextHint = document.querySelector("#next-hint");
 const rangeOptions = document.querySelector("#range-options");
 const autoplayToggle = document.querySelector("#autoplay-toggle");
+const settingsTabs = [...document.querySelectorAll("[role='tab']")];
+const settingsPanels = [...document.querySelectorAll("[role='tabpanel']")];
 
 function currentRange() { return RANGES.find((range) => range.id === settings.range) || RANGES[0]; }
-function randomNumber({ min, max }) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function randomNumber({ min, max, step = 1 }) { return min + Math.floor(Math.random() * ((max - min) / step + 1)) * step; }
+function isValidNumericAnswer(value) { return /^(?:\d+|\d{1,3}(?:,\d{3})+)$/.test(value); }
+function parseNumericAnswer(value) { return Number(value.replaceAll(",", "")); }
 
 function numberToJapanese(number) {
   const under10000 = (value) => {
@@ -78,9 +85,11 @@ function numberToJapanese(number) {
     return parts.join("");
   };
   if (number === 0) return "零";
-  const man = Math.floor(number / 10000);
-  const rest = number % 10000;
-  return `${man ? `${under10000(man)}万` : ""}${rest ? under10000(rest) : ""}`;
+  const oku = Math.floor(number / 100000000);
+  const restAfterOku = number % 100000000;
+  const man = Math.floor(restAfterOku / 10000);
+  const rest = restAfterOku % 10000;
+  return `${oku ? `${under10000(oku)}億` : ""}${man ? `${under10000(man)}万` : ""}${rest ? under10000(rest) : ""}`;
 }
 
 function setFeedback(kind = "", message = "", mark = "") {
@@ -117,8 +126,8 @@ function submitAnswer() {
     return;
   }
   const raw = answerInput.value.trim();
-  if (!/^\d+$/.test(raw)) { setFeedback("wrong", "Please type ordinary digits only.", "!"); return; }
-  if (Number(raw) === state.answer) {
+  if (!isValidNumericAnswer(raw)) { setFeedback("wrong", "Please use digits, with optional commas such as 1,000.", "!"); return; }
+  if (parseNumericAnswer(raw) === state.answer) {
     nextQuestion({ userInitiated: true });
     return;
   }
@@ -139,8 +148,17 @@ function submitAnswer() {
 }
 
 function renderSettings() {
-  rangeOptions.innerHTML = RANGES.map((range) => `<label class="choice-card"><input type="radio" name="range" value="${range.id}" ${settings.range === range.id ? "checked" : ""} /><span>${range.label}</span></label>`).join("");
+  rangeOptions.innerHTML = RANGES.map((range) => `${range.id === "100000-999999" ? `<div class="tts-only-note"><strong>Text-to-speech only</strong><small>(For mobile users: use your phone's native browser for audio playback)</small></div>` : ""}<label class="choice-card"><input type="radio" name="range" value="${range.id}" ${settings.range === range.id ? "checked" : ""} /><span>${range.label}${range.format ? `<small class="range-format">${range.format}</small>` : ""}</span></label>`).join("");
   autoplayToggle.setAttribute("aria-pressed", String(settings.autoplay));
+}
+
+function showSettingsCategory(category) {
+  settingsTabs.forEach((tab) => {
+    const selected = tab.id === `${category}-tab`;
+    tab.setAttribute("aria-selected", String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+  });
+  settingsPanels.forEach((panel) => { panel.hidden = panel.id !== `${category}-panel`; });
 }
 
 function showView(view) {
@@ -152,6 +170,16 @@ function showView(view) {
 
 document.querySelector("[data-route='settings']").addEventListener("click", () => showView("settings"));
 document.querySelector(".brand").addEventListener("click", (event) => { event.preventDefault(); showView("practice"); });
+settingsTabs.forEach((tab, index) => {
+  tab.addEventListener("click", () => showSettingsCategory(tab.id.replace("-tab", "")));
+  tab.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    const nextTab = settingsTabs[(index + (event.key === "ArrowRight" ? 1 : settingsTabs.length - 1)) % settingsTabs.length];
+    nextTab.focus();
+    showSettingsCategory(nextTab.id.replace("-tab", ""));
+  });
+});
 replayButton.addEventListener("click", () => playCurrent({ userInitiated: true }));
 autoplayToggle.addEventListener("click", () => {
   settings.autoplay = !settings.autoplay;
@@ -159,15 +187,22 @@ autoplayToggle.addEventListener("click", () => {
 });
 answerForm.addEventListener("submit", (event) => { event.preventDefault(); submitAnswer(); });
 answerInput.addEventListener("input", () => {
-  answerInput.value = answerInput.value.replace(/\D/g, "");
-  const isCorrect = answerInput.value !== "" && Number(answerInput.value) === state.answer;
+  answerInput.value = answerInput.value.replace(/[^\d,]/g, "");
+  const isCorrect = isValidNumericAnswer(answerInput.value) && parseNumericAnswer(answerInput.value) === state.answer;
   answerInput.classList.toggle("is-correct", isCorrect);
   if (isCorrect) setFeedback();
 });
 document.addEventListener("keydown", (event) => {
-  if (!state.awaitingNext || settingsView.hidden === false || (event.key !== "Enter" && event.key !== " ")) return;
-  event.preventDefault();
-  nextQuestion({ userInitiated: true });
+  if (settingsView.hidden === false || event.ctrlKey || event.metaKey || event.altKey) return;
+  if (state.awaitingNext && (event.key === "Enter" || event.code === "Space")) {
+    event.preventDefault();
+    nextQuestion({ userInitiated: true });
+    return;
+  }
+  if (!state.awaitingNext && event.code === "Space") {
+    event.preventDefault();
+    playCurrent({ userInitiated: true });
+  }
 });
 document.querySelector("#settings-form").addEventListener("submit", (event) => {
   event.preventDefault();

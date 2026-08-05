@@ -27,12 +27,13 @@ button { cursor: pointer; }
 .settings-link { border: 0; background: transparent; color: var(--accent-dark); font-weight: 700; padding: .5rem; }
 .view { padding: clamp(2rem, 9vw, 5rem) 0 3rem; }
 .eyebrow { margin: 0 0 .5rem; color: var(--accent); font-size: .8rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-h1 { margin: 0; max-width: 32rem; font-size: clamp(2.2rem, 9vw, 4.3rem); line-height: 1.02; letter-spacing: -.06em; }
+h1 { margin: 0; max-width: 32rem; font-size: clamp(2.2rem, 9vw, 3.4rem); line-height: 1.02; letter-spacing: -.06em; }
 .range-label { margin: 1rem 0 2.5rem; color: var(--muted); }
 .sound-button { display: flex; align-items: center; gap: .65rem; width: 100%; justify-content: center; border: 0; border-radius: 1rem; padding: 1.35rem; background: var(--ink); color: white; font-weight: 800; font-size: 1.12rem; box-shadow: 0 .6rem 1.8rem #17382e2c; }
 .sound-button span { display: inline-block; font-size: 1.8rem; transform: rotate(180deg); }
+.audio-shortcut { margin: .7rem 0 0; color: var(--muted); font-size: .85rem; text-align: center; }
 .audio-note { margin: .7rem 0 0; color: var(--muted); font-size: .85rem; text-align: center; }
-#answer-form { margin-top: 2.75rem; }
+#answer-form { margin-top: 2.00rem; }
 label, legend { display: block; font-weight: 750; }
 .answer-row { display: flex; gap: .7rem; margin-top: .65rem; }
 input[type="text"], #answer-input { min-width: 0; flex: 1; border: 2px solid var(--line); border-radius: .8rem; background: white; color: var(--ink); padding: .95rem 1rem; font-size: 1.25rem; font-weight: 700; outline: none; }
@@ -45,14 +46,23 @@ input[type="text"], #answer-input { min-width: 0; flex: 1; border: 2px solid var
 .feedback .mark { font-size: 1.7rem; line-height: 1; }
 .next-hint { margin: 0; color: var(--muted); font-size: .93rem; }
 .settings-form { margin-top: 2.4rem; }
+.settings-tabs { display: flex; gap: .15rem; overflow-x: auto; margin: 0 -1rem 2rem; padding: 0 1rem; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.settings-tabs::-webkit-scrollbar { display: none; }
+.settings-tab { flex: 0 0 auto; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; padding: .75rem 1rem .65rem; background: transparent; color: var(--muted); font-weight: 800; }
+.settings-tab[aria-selected="true"] { border-color: var(--accent); color: var(--accent-dark); }
+.settings-tab:focus-visible { outline: 3px solid #0e735855; outline-offset: -3px; border-radius: .45rem .45rem 0 0; }
 fieldset { margin: 0 0 2.2rem; padding: 0; border: 0; }
 legend { margin-bottom: .8rem; }
 .choice-list { display: grid; gap: .65rem; }
+.tts-only-note { margin-top: .85rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+.tts-only-note strong { display: block; font-size: .9rem; }
+.tts-only-note small { display: block; margin-top: .15rem; color: color-mix(in srgb, var(--muted) 72%, transparent); font-size: .8rem; }
 .choice-card { display: flex; align-items: flex-start; gap: .8rem; border: 2px solid var(--line); border-radius: .85rem; padding: .95rem 1rem; background: white; cursor: pointer; }
 .choice-card:has(input:checked) { border-color: var(--accent); background: var(--wash); }
 .choice-card input { width: 1.1rem; height: 1.1rem; margin-top: .18rem; accent-color: var(--accent); }
 .choice-card span { font-weight: 750; }
 .choice-card small { display: block; color: var(--muted); font-weight: 500; }
+.choice-card .range-format { margin-top: .12rem; color: color-mix(in srgb, var(--muted) 72%, transparent); font-size: .8rem; }
 .choice-card.unavailable { opacity: .58; cursor: not-allowed; }
 .toggle-button { width: 100%; text-align: left; }
 .toggle-button[aria-pressed="true"] { border-color: var(--accent); background: var(--wash); }
