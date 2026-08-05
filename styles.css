@@ -71,5 +71,6 @@ legend { margin-bottom: .8rem; }
 .toggle-button[aria-pressed="true"] .toggle-indicator { background: var(--accent); }
 .toggle-button[aria-pressed="true"] .toggle-indicator::after { transform: translateX(1.15rem); }
 .save-button { width: 100%; padding: 1.1rem; }
+.save-shortcut { margin: .45rem 0 0; color: color-mix(in srgb, var(--muted) 72%, transparent); font-size: .8rem; text-align: center; }
 
 @media (max-width: 420px) { .answer-row { flex-direction: column; } .submit-button { width: 100%; } }

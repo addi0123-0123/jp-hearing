@@ -56,6 +56,7 @@ const state = { answer: null, attempts: 0, awaitingNext: false };
 
 const practiceView = document.querySelector("#practice-view");
 const settingsView = document.querySelector("#settings-view");
+const settingsForm = document.querySelector("#settings-form");
 const rangeLabel = document.querySelector("#range-label");
 const answerForm = document.querySelector("#answer-form");
 const answerInput = document.querySelector("#answer-input");
@@ -193,7 +194,14 @@ answerInput.addEventListener("input", () => {
   if (isCorrect) setFeedback();
 });
 document.addEventListener("keydown", (event) => {
-  if (settingsView.hidden === false || event.ctrlKey || event.metaKey || event.altKey) return;
+  if (settingsView.hidden === false) {
+    if (event.key === "Enter" && !event.ctrlKey && !event.metaKey && !event.altKey && !event.isComposing) {
+      event.preventDefault();
+      settingsForm.requestSubmit();
+    }
+    return;
+  }
+  if (event.ctrlKey || event.metaKey || event.altKey) return;
   if (state.awaitingNext && (event.key === "Enter" || event.code === "Space")) {
     event.preventDefault();
     nextQuestion({ userInitiated: true });
@@ -204,7 +212,7 @@ document.addEventListener("keydown", (event) => {
     playCurrent({ userInitiated: true });
   }
 });
-document.querySelector("#settings-form").addEventListener("submit", (event) => {
+settingsForm.addEventListener("submit", (event) => {
   event.preventDefault();
   settings.range = new FormData(event.currentTarget).get("range") || RANGES[0].id;
   localStorage.setItem("jp-number-settings", JSON.stringify(settings));
